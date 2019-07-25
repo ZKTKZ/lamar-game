@@ -1,0 +1,203 @@
+// The "Game" class.
+import img.ImageLoader;
+//import fnt.Fonts;
+//import keybrd.KeyboardListener;
+
+import java.awt.*;
+import hsa.Console;
+import java.awt.event.KeyEvent;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+//import java.awt.BorderLayout;
+import java.awt.image.BufferedImage;
+import java.util.Random;
+
+
+public class Game extends Canvas
+{
+    static Console c;                                    
+    static ImageLoader imageLoader = new ImageLoader (); // constructs ImageLoader object
+    public static final int SCALE = 3;                   // CONSTANT variable scale factor = 3
+    /*public static final String NAME = "Lamar's Space Adventures";
+    private JFrame frame;
+    private JPanel panel;
+    public KeyboardListener keyBoardListener; */
+
+
+    /*  public Game()
+      {
+    frame= new JFrame(NAME);
+    panel= new JPanel();
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    //frame.setLayout(newBorderLayout());
+    //frame.add(this,BorderLayout.CENTER);
+    frame.pack();
+    frame.setSize(640,500);
+    frame.setResizable(false);
+    //frame.setLocationRelativeTo(null);
+    frame.setVisible(true);
+    panel.setLayout(null);
+    panel.setFocusable(true);
+    panel.requestFocusInWindow();
+      } */
+
+    public static void loadingScreen ()                     // method to load screen
+    {
+	/*   int consoleWidth = imageLoader.getWidth();
+	   int consoleHeight = imageLoader.getHeight(); */
+
+	final int width = c.getWidth ();        // constant width;
+	final int height = 12 / 9 * width;      // constant height
+
+	Image background = imageLoader.loadImage ("background.jpg");                        
+	background = background.getScaledInstance (700, 700, Image.SCALE_DEFAULT);          // scales image
+	Image titleBanner = imageLoader.loadImage ("titleBanner.png");
+	Image playButton = imageLoader.loadImage ("playButton.png");
+	playButton = playButton.getScaledInstance (width / SCALE, height / 8, Image.SCALE_DEFAULT);
+	c.drawImage (background, 0, 0, null);
+	c.drawImage (titleBanner, 200, 0, null);
+	c.drawImage (playButton, width / 3 + 15, 250, null);
+    }
+
+
+    public static void mainGame ()  // change name to 'praveen'
+    {
+	// MyThread mt = new MyThread ();
+	// mt.start ();
+
+	// c = new Console ();
+
+	BufferedImage lamarInSpace = new BufferedImage (c.getWidth (), c.getHeight (), BufferedImage.TYPE_INT_ARGB);    // prevents flickering
+	Graphics g = lamarInSpace.getGraphics ();
+
+	Image nightSky = imageLoader.loadImage ("nightSky.jpg");
+	Image rszNightSky = nightSky.getScaledInstance (200, 200, Image.SCALE_DEFAULT);     // scales image
+	Image spaceLamar = imageLoader.loadImage ("spaceLamar.png");
+	spaceLamar = spaceLamar.getScaledInstance (350, 350, Image.SCALE_DEFAULT);          // scales image
+	Image goonOne = imageLoader.loadImage ("goonOne.png");
+	goonOne = goonOne.getScaledInstance (200, 160, Image.SCALE_DEFAULT);                // scales image
+	Image lamProjectile = imageLoader.loadImage ("lamProjectile.png");
+	lamProjectile = lamProjectile.getScaledInstance (450, 75, Image.SCALE_DEFAULT);     // scales image
+
+	int xLam = -45, yLam = 0;       // Lamar's position
+	final int xLamProj = 227;       // Position of Lamar's projectile
+	
+	Random rand = new Random ();   
+	final int xGoon = 605;                              // xPosition of Goon
+	int yGoon = rand.nextInt (333);                     // yPosition of Goon, isVariable
+	int goonCount = 0;                                  // # of goons spawned
+	int xOffset = 0;                                    // displacement from initial xPosition                                   
+	int healthBar = 200;                                
+	char input;                                         
+
+	do
+	{
+
+	    input = 'a';   // arbitrary choice, placeholder value
+
+	    //        int yGoon = rand.nextInt (333); IMPOSSIBRU-DESUU MODE ZIGZAGOON OMG ZIGZAG + GOON = ZIGZAGOON
+
+
+	    c.drawImage (lamarInSpace, 0, 0, null);
+	    g.drawImage (nightSky, 0, 0, null);
+	    g.drawImage (spaceLamar, xLam, yLam, null);
+	    if (xGoon - xOffset < -180)                     // if Goon goes off screen, generates new Goon
+	    {
+		yGoon = rand.nextInt (333);
+		goonCount++;
+		xOffset = 0;
+	    }
+	    g.drawImage (goonOne, xGoon - xOffset, yGoon, null);
+
+	    
+	    g.setColor (Color.green);       
+	    g.fillRect (0, 0, healthBar, 10);                   // draws health bar
+	    
+
+	    while (c.isCharAvail ())                                // if user presses keyboard
+	    {
+		input = c.getChar ();                               // checks for input
+
+		if (input == 'w' || input == '8')                                   
+		{
+		    yLam -= 5;                                      // if w or 8 is pressed, Lamar goes UP
+		    g.drawImage (nightSky, 640, 500, null);
+		    g.drawImage (spaceLamar, xLam, yLam, null);
+		}
+		if (input == 's' || input == '5')
+		{
+		    yLam += 5;                                      // if s or 5 is pressed, Lamar goes DOWN
+		    g.drawImage (nightSky, 640, 500, null);        
+		    g.drawImage (spaceLamar, xLam, 0 + yLam, null);
+		}
+		// if (input == 'x' && input != 'w' && input != 's')
+		//;
+		{
+		if (xGoon - xOffset < 217 && xGoon - xOffset > -180 && yLam > yGoon - 251 && yLam < yGoon + 61) 
+		{
+		healthBar -= 2;  // if Goon touches Lamar, Lamar's health drops                                                 
+		}
+
+		if (input == 32)    // if user presses spacebar, projectile is unleashed
+		{
+		    g.drawImage (lamProjectile, xLamProj, yLam + 160, null);
+		}
+
+		xOffset += 3;                                           // value by which Goon is offset horizontally
+		g.drawImage (goonOne, xGoon - xOffset, yGoon, null);
+	    }
+	    xOffset += 2;                                               // ^same, for the most part
+	    g.drawImage (goonOne, xGoon - xOffset, yGoon, null);
+
+	  //  try
+	  //  {
+	  //      Thread.sleep (50);                  
+		g.drawImage (nightSky, 640, 500, null);
+	  //  }
+	  //  catch (InterruptedException ie)
+	  //  {
+	  //      ie.printStackTrace ();
+	  //  }
+	 }
+
+	    /* if (input == 'f')
+	    c.drawImage(rszLamarProjectile,xLam + 200, yLam - 400, null);
+	     {
+	    rszLamarProjectile=lamarProjectile.getScaledInstance (100, 50, Image.SCALE_DEFAULT);
+	    c.drawImage(rszLamarProjectile,xLam + 200, yLam - 400, null);
+	     } */
+	}
+	while (input != '0');
+    }
+
+
+    public static void main (String[] args)
+    {
+	c = new Console ();
+
+	loadingScreen ();
+	c.getChar ();
+	c.clear ();
+	//Fonts fonts = new Fonts();
+	//fonts.renderText();
+	//new Game ();
+	mainGame ();
+	/*     KeyboardListener keyboardListener = new KeyboardListener();
+	keyboardListener.KeyBoardListener();
+	keyBoardListener = new KeyboardListener(this); */
+    }
+} // Game class
+
+/*class MyThread extends Thread
+{
+
+    public void run ()
+    {
+
+
+
+    }
+} */
+
+
+
