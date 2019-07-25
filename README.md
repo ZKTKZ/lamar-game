@@ -1,3 +1,3 @@
-# lamar-game
+# Lamar's Adventures 
 
-Source code for original 2D sidescroller written in Java featuring original artwork.
+Source code for 2D sidescroller written in Java for Grade 10 project, featuring original artwork.
